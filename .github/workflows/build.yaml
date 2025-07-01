@@ -2,11 +2,10 @@ name: Build and Release Rust ActionHero (Windows)
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+    tags:
+      - 'v*'  # e.g., v1.0.0, v1.2.3
+
+      
 jobs:
   build:
     runs-on: windows-latest
