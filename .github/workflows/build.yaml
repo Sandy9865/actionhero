@@ -1,0 +1,53 @@
+name: Build and Release Rust Hello World
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the 'main' branch
+  pull_request:
+    branches:
+      - main  # Trigger on pull requests to the 'main' branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Run on the latest version of Ubuntu
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3  # Checkout the repository code
+
+    - name: Set up Rust
+      uses: actions/setup-rust@v1
+      with:
+        rust-version: stable  # Use the stable version of Rust
+
+    - name: Install dependencies (if any)
+      run: |
+        cargo fetch  # Fetch any dependencies (if using external crates)
+
+    - name: Build project
+      run: |
+        echo "Building the Hello World project"
+        cargo build --release  # Build the project in release mode
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: hello-world-binary
+        path: target/release/hello-world  # Upload the compiled binary (adjust for your binary name)
+
+  release:
+    needs: build  # Release job depends on the build job
+    runs-on: ubuntu-latest  # Run on the latest version of Ubuntu
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: target/release/hello-world  # Upload the compiled binary
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Auto-generated token to interact with the GitHub API
