@@ -1,4 +1,4 @@
-name: Build and Release Rust Hello World
+name: Build and Release Rust ActionHero (Windows)
 
 on:
   push:
@@ -10,49 +10,43 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest  # Use Windows runner for MSVC build
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Set up Rust
+    - name: Set up Rust with MSVC target
       uses: dtolnay/rust-toolchain@v1
       with:
         toolchain: stable
+        targets: x86_64-pc-windows-msvc
 
-    - name: Install dependencies
-      run: cargo fetch
-
-    - name: Build project
+    - name: Build project for Windows
       run: |
-        echo "Building the Hello World project"
-        cargo build --release
+        echo "Building for Windows (MSVC target)"
+        cargo build --release --target x86_64-pc-windows-msvc
 
-    - name: Upload build artifact
+    - name: Upload Windows build artifact
       uses: actions/upload-artifact@v4
       with:
-        name: hello-world-binary
-        path: target/release/hello-world
+        name: actionhero-windows-binary
+        path: target/x86_64-pc-windows-msvc/release/actionhero.exe
 
   release:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # You can still use Ubuntu to create the release
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Download build artifact
+    - name: Download Windows artifact
       uses: actions/download-artifact@v4
       with:
-        name: hello-world-binary
-        path: ./target/release/
+        name: actionhero-windows-binary
+        path: ./dist/
 
-    - name: Create Release
-      id: create_release
+    - name: Create GitHub Release with Windows binary
       uses: softprops/action-gh-release@v1
       with:
-        files: ./target/release/hello-world
+        files: ./dist/actionhero.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
