@@ -2,15 +2,12 @@ name: Build and Release Rust ActionHero (Windows)
 
 on:
   push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+    tags:
+      - 'v*'  # Trigger only on tags like v1.0.0
 
 jobs:
   build:
-    runs-on: windows-latest  # Use Windows runner for MSVC build
+    runs-on: windows-latest
 
     steps:
     - name: Checkout code
@@ -24,7 +21,7 @@ jobs:
 
     - name: Build project for Windows
       run: |
-        echo "Building for Windows (MSVC target)"
+        echo "Building for Windows (MSVC)"
         cargo build --release --target x86_64-pc-windows-msvc
 
     - name: Upload Windows build artifact
@@ -35,7 +32,7 @@ jobs:
 
   release:
     needs: build
-    runs-on: ubuntu-latest  # You can still use Ubuntu to create the release
+    runs-on: ubuntu-latest
 
     steps:
     - name: Download Windows artifact
@@ -47,6 +44,7 @@ jobs:
     - name: Create GitHub Release with Windows binary
       uses: softprops/action-gh-release@v1
       with:
+        tag_name: ${{ github.ref_name }}  # This uses the Git tag (e.g., v1.0.0)
         files: ./dist/actionhero.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
