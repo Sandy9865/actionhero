@@ -47,4 +47,4 @@ jobs:
         tag_name: ${{ github.ref_name }}  # This uses the Git tag (e.g., v1.0.0)
         files: ./dist/actionhero.exe
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Token
